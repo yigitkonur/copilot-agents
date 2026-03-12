@@ -14,13 +14,18 @@ import type {
   CopilotSession,
   MCPLocalServerConfig as SDKMCPLocalServerConfig,
   MessageOptions,
+  SystemMessageConfig,
+  SystemMessageAppendConfig,
+  SystemMessageReplaceConfig,
 } from '@github/copilot-sdk';
 
 import type { FleetTask, FleetResult } from '../types.js';
 import type { FleetTaskStatus } from '../types.js';
-import { ExitCode } from '../types.js';
+import { ExitCode, isReasoningEffort } from '../types.js';
+import type { ReasoningEffort } from '../types.js';
 import { toAppError } from '../errors.js';
 import { clientManager, approveAll } from '../core/client-manager.js';
+import { createReadOnlyPermissionHandler } from '../handlers/permission.js';
 import { createProgressEventHandler } from '../handlers/events.js';
 import { createSessionHooks, createAutoUserInputHandler } from '../handlers/hooks.js';
 import { loadPromptFiles, loadPrompt } from '../utils/prompt-loader.js';
@@ -37,11 +42,39 @@ interface FleetCommandOptions {
   readonly concurrency: string;
   readonly timeout: string;
   readonly verbose?: boolean;
+  readonly readOnly?: boolean;
+  readonly json?: boolean;
+  readonly recursive?: boolean;
+  readonly dedupe?: boolean;
+  readonly reasoningEffort?: string;
+  readonly systemMessage?: string;
+  readonly systemMessageMode?: string;
   readonly mcpServer?: readonly string[];
   readonly skillDir?: readonly string[];
   readonly agent?: string;
   readonly useFleetRpc?: boolean;
   readonly listAgents?: boolean;
+}
+
+// ---------------------------------------------------------------------------
+// Validation helpers
+// ---------------------------------------------------------------------------
+
+type SystemMessageMode = 'append' | 'replace';
+
+function isSystemMessageMode(value: string): value is SystemMessageMode {
+  return value === 'append' || value === 'replace';
+}
+
+function buildSystemMessageConfig(
+  content: string | undefined,
+  mode: SystemMessageMode,
+): SystemMessageConfig | undefined {
+  if (!content) return undefined;
+  if (mode === 'replace') {
+    return { mode: 'replace', content } satisfies SystemMessageReplaceConfig;
+  }
+  return { mode: 'append', content } satisfies SystemMessageAppendConfig;
 }
 
 // ---------------------------------------------------------------------------
@@ -108,10 +141,17 @@ export function createFleetCommand(): Command {
     .option('-c, --concurrency <n>', 'Max concurrent sessions', '5')
     .option('-t, --timeout <ms>', 'Timeout per session in ms', '300000')
     .option('-v, --verbose', 'Verbose output')
+    .option('-r, --recursive', 'Recursively scan directories for prompt files')
+    .option('--dedupe', 'Deduplicate resolved file paths')
+    .option('--reasoning-effort <level>', 'Reasoning effort: low, medium, high, xhigh')
+    .option('--system-message <text>', 'Additional system message for all tasks')
+    .option('--system-message-mode <mode>', 'System message mode: append (default) or replace', 'append')
     .option('--mcp-server <name:command...>', 'MCP server in name:command:arg1:arg2 format')
     .option('--skill-dir <path...>', 'Load skills from directory')
     .option('--agent <name>', 'Activate a custom agent for all tasks')
     .option('--use-fleet-rpc', 'Use session.rpc.fleet.start() instead of manual parallel execution')
+    .option('--read-only', 'Read-only mode: deny file-write, shell, and delete permissions')
+    .option('--json', 'Output results as JSON instead of table')
     .option('--list-agents', 'List available agents and exit')
     .action(async (files: string[], options: FleetCommandOptions) => {
       await executeFleet(files, options);
@@ -166,13 +206,15 @@ async function executeFleet(
 
   // -- Resolve and validate prompt files ------------------------------------
 
-  const filesResult = await loadPromptFiles(files);
+  const filesResult = await loadPromptFiles(files, { recursive: options.recursive });
   if (!filesResult.success) {
     logger.error(filesResult.error.message);
     process.exit(ExitCode.PromptError);
   }
 
-  const resolvedFiles = filesResult.data;
+  const resolvedFiles = options.dedupe
+    ? [...new Set(filesResult.data)]
+    : filesResult.data;
   logger.info(`Fleet: ${String(resolvedFiles.length)} task(s), concurrency: ${String(concurrency)}`);
 
   // -- Build task list ------------------------------------------------------
@@ -200,14 +242,28 @@ async function executeFleet(
 
       // Create an isolated session for this task
       const mcpServers = parseMcpServers(options.mcpServer);
+      const permissionHandler = options.readOnly ? createReadOnlyPermissionHandler(logger) : approveAll;
+
+      const reasoningEffort: ReasoningEffort | undefined =
+        options.reasoningEffort && isReasoningEffort(options.reasoningEffort)
+          ? options.reasoningEffort
+          : undefined;
+
+      const sysMsgMode: SystemMessageMode =
+        options.systemMessageMode && isSystemMessageMode(options.systemMessageMode)
+          ? options.systemMessageMode
+          : 'append';
+      const systemMessage = buildSystemMessageConfig(options.systemMessage, sysMsgMode);
 
       session = await client.createSession({
         model: options.model,
+        reasoningEffort,
         workingDirectory: options.cwd,
-        onPermissionRequest: approveAll,
+        onPermissionRequest: permissionHandler,
         onUserInputRequest: createAutoUserInputHandler(),
         hooks: createSessionHooks({ logger, verbose }),
         mcpServers,
+        systemMessage,
         skillDirectories: options.skillDir ? [...options.skillDir] : undefined,
         customAgents: options.agent
           ? [{ name: options.agent, prompt: '', infer: true }]
@@ -390,27 +446,31 @@ async function executeFleet(
     failed,
   };
 
-  console.log(`\n${'─'.repeat(60)}`);
-  logger.info(`Fleet completed in ${formatDuration(result.totalDuration)}`);
-  logger.info(`  ✓ Succeeded: ${String(result.succeeded)}/${String(tasks.length)}`);
-  if (result.failed > 0) {
-    logger.warn(`  ✗ Failed: ${String(result.failed)}/${String(tasks.length)}`);
-  }
+  if (options.json) {
+    console.log(JSON.stringify(result, null, 2));
+  } else {
+    console.log(`\n${'─'.repeat(60)}`);
+    logger.info(`Fleet completed in ${formatDuration(result.totalDuration)}`);
+    logger.info(`  ✓ Succeeded: ${String(result.succeeded)}/${String(tasks.length)}`);
+    if (result.failed > 0) {
+      logger.warn(`  ✗ Failed: ${String(result.failed)}/${String(tasks.length)}`);
+    }
 
-  // Results table
-  const headers = ['Task', 'File', 'Status', 'Duration', 'Result'];
-  const rows: (readonly string[])[] = tasks.map((t) => [
-    t.id,
-    basename(t.promptFile),
-    t.status,
-    t.startedAt && t.completedAt
-      ? formatDuration(t.completedAt.getTime() - t.startedAt.getTime())
-      : '-',
-    t.status === 'completed'
-      ? truncate(t.result ?? '', 40)
-      : truncate(t.error ?? '', 40),
-  ]);
-  console.log(formatTable(headers, rows));
+    // Results table
+    const headers = ['Task', 'File', 'Status', 'Duration', 'Result'];
+    const rows: (readonly string[])[] = tasks.map((t) => [
+      t.id,
+      basename(t.promptFile),
+      t.status,
+      t.startedAt && t.completedAt
+        ? formatDuration(t.completedAt.getTime() - t.startedAt.getTime())
+        : '-',
+      t.status === 'completed'
+        ? truncate(t.result ?? '', 40)
+        : truncate(t.error ?? '', 40),
+    ]);
+    console.log(formatTable(headers, rows));
+  }
 
   // -- Cleanup --------------------------------------------------------------
 
@@ -432,10 +492,11 @@ async function listAgentsAndExit(
 ): Promise<void> {
   let session: CopilotSession | undefined;
   try {
+    const permissionHandler = options.readOnly ? createReadOnlyPermissionHandler(logger) : approveAll;
     session = await client.createSession({
       model: options.model,
       workingDirectory: options.cwd,
-      onPermissionRequest: approveAll,
+      onPermissionRequest: permissionHandler,
       onUserInputRequest: createAutoUserInputHandler(),
     });
 
@@ -467,3 +528,5 @@ async function listAgentsAndExit(
     await clientManager.stop();
   }
 }
+
+

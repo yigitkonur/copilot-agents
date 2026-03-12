@@ -65,11 +65,13 @@ export function detectPromptSource(
 /**
  * Resolve an array of file paths / directory paths to individual prompt files.
  *
- * Directories are scanned (non-recursively) for files with supported
- * extensions.  Results are sorted lexicographically.
+ * Directories are scanned for files with supported extensions.
+ * When `options.recursive` is true, subdirectories are traversed.
+ * Results are sorted lexicographically.
  */
 export async function loadPromptFiles(
   patterns: readonly string[],
+  options?: { recursive?: boolean },
 ): Promise<Result<readonly string[]>> {
   try {
     const resolved: string[] = [];
@@ -89,10 +91,20 @@ export async function loadPromptFiles(
       );
 
       if (stat.isDirectory()) {
-        const entries = await readdir(absolutePath);
-        for (const entry of entries) {
-          if (isSupportedExtension(extname(entry))) {
-            resolved.push(resolve(absolutePath, entry));
+        if (options?.recursive) {
+          // Recursive: use readdir with recursive option (Node 18.17+)
+          const entries = await readdir(absolutePath, { recursive: true });
+          for (const entry of entries) {
+            if (isSupportedExtension(extname(entry))) {
+              resolved.push(resolve(absolutePath, entry));
+            }
+          }
+        } else {
+          const entries = await readdir(absolutePath);
+          for (const entry of entries) {
+            if (isSupportedExtension(extname(entry))) {
+              resolved.push(resolve(absolutePath, entry));
+            }
           }
         }
       } else if (stat.isFile()) {
