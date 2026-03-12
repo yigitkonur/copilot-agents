@@ -102,7 +102,7 @@ interface MutableFleetTask {
 export function createFleetCommand(): Command {
   return new Command('fleet')
     .description('Run multiple prompts in parallel across separate sessions')
-    .argument('<files...>', 'Prompt files or directories to run (.txt, .md)')
+    .argument('<files...>', 'Prompt files or directories to run (.txt, .md, .markdown, .prompt)')
     .option('-m, --model <model>', 'Model to use for all sessions')
     .option('-d, --cwd <dir>', 'Working directory', process.cwd())
     .option('-c, --concurrency <n>', 'Max concurrent sessions', '5')

@@ -17,7 +17,7 @@ The `chat` command starts an interactive multi-turn conversation session with re
 ### Test 1: Start a New Chat Session
 
 ```bash
-copilot-agents chat
+npx copilot-agents chat
 ```
 
 **What to expect:**
@@ -59,15 +59,15 @@ You: /help
 
 ```
 You: /model
-You: /model gpt-4o
+You: /model gpt-5.4
 You: /model
 ```
 
 **What to expect:**
 
-- First `/model` — shows the current model name (e.g., `gpt-4o` or `claude-sonnet-4`)
-- `/model gpt-4o` — switches to gpt-4o, confirms the switch
-- Second `/model` — shows `gpt-4o` confirming the change took effect
+- First `/model` — shows the current model name (e.g., `gpt-5.4` or `claude-sonnet-4.6`)
+- `/model gpt-5.4` — switches to gpt-5.4, confirms the switch
+- Second `/model` — shows `gpt-5.4` confirming the change took effect
 
 ### Test 4: Slash Command — /mode
 
@@ -82,7 +82,7 @@ You: /mode autopilot
 > **⚠️ CAUTION — Autopilot mode:** `/mode autopilot` allows the agent to take actions — file writes, shell commands, tool calls — **without asking for confirmation**. Only use autopilot in a safe, disposable directory. Recommended setup:
 >
 > ```bash
-> mkdir /tmp/calc-test && cd /tmp/calc-test && copilot-agents chat
+> mkdir /tmp/calc-test && cd /tmp/calc-test && npx copilot-agents chat
 > ```
 >
 > Then switch to autopilot inside the REPL. Use `/mode interactive` to return to confirmation-required mode.
@@ -151,7 +151,7 @@ You: /agent <pick-one-from-list>
 
 ```bash
 # First, note the session ID from a previous chat (visible in session list or verbose output)
-copilot-agents chat --resume --session-id <SESSION_ID>
+npx copilot-agents chat --resume --session-id <SESSION_ID>
 ```
 
 **What to expect:**
@@ -171,7 +171,7 @@ You: What have we built so far?
 ### Test 9: Read-Only Mode
 
 ```bash
-copilot-agents chat --read-only
+npx copilot-agents chat --read-only
 ```
 
 ```
@@ -194,7 +194,7 @@ You: Create an HTML calculator and save it to calc.html
 ### Test 10: Custom System Message
 
 ```bash
-copilot-agents chat --system-message "You are a senior frontend engineer. Always respond in bullet points. Use emojis for emphasis. Keep code examples minimal."
+npx copilot-agents chat --system-message "You are a senior frontend engineer. Always respond in bullet points. Use emojis for emphasis. Keep code examples minimal."
 ```
 
 ```
@@ -210,7 +210,7 @@ You: Explain how to build an HTML calculator
 ### Test 11: Verbose and Timeout Flags
 
 ```bash
-copilot-agents chat -v -t 30000
+npx copilot-agents chat -v -t 30000
 ```
 
 **What to expect:**
@@ -269,13 +269,13 @@ Chat sessions persist on the server. Over time, old sessions may accumulate. To 
 
 ```bash
 # List all saved sessions
-copilot-agents sessions list
+npx copilot-agents sessions list
 
 # Delete a specific session by ID
-copilot-agents sessions delete <SESSION_ID>
+npx copilot-agents sessions delete <SESSION_ID>
 
 # View conversation history before deleting
-copilot-agents sessions history <SESSION_ID>
+npx copilot-agents sessions history <SESSION_ID>
 ```
 
 If you used `--session-id` to name a session, use that same ID to clean it up. Sessions from unnamed chats can be found via `sessions list`.

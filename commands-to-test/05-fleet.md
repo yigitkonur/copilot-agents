@@ -6,7 +6,7 @@
 >
 > **Always run fleet in a safe, isolated directory.** Recommended:
 > ```bash
-> mkdir /tmp/fleet-test && cd /tmp/fleet-test && copilot-agents fleet ...
+> mkdir /tmp/fleet-test && cd /tmp/fleet-test && npx copilot-agents fleet ...
 > ```
 
 ## What This Command Does
@@ -69,7 +69,7 @@ EOF
 ### Test 1: Run All Prompts in a Directory
 
 ```bash
-copilot-agents fleet /tmp/calc-fleet/
+npx copilot-agents fleet /tmp/calc-fleet/
 ```
 
 **What to expect:**
@@ -102,7 +102,7 @@ Note: The table uses padded columns (not box-drawing characters). Results are tr
 ### Test 2: Run Specific Files Only
 
 ```bash
-copilot-agents fleet /tmp/calc-fleet/01-layout.md /tmp/calc-fleet/02-styles.md
+npx copilot-agents fleet /tmp/calc-fleet/01-layout.md /tmp/calc-fleet/02-styles.md
 ```
 
 **What to expect:**
@@ -119,7 +119,7 @@ copilot-agents fleet /tmp/calc-fleet/01-layout.md /tmp/calc-fleet/02-styles.md
 Run sequentially (one at a time):
 
 ```bash
-copilot-agents fleet /tmp/calc-fleet/ -c 1
+npx copilot-agents fleet /tmp/calc-fleet/ -c 1
 ```
 
 **What to expect:**
@@ -131,7 +131,7 @@ copilot-agents fleet /tmp/calc-fleet/ -c 1
 Then compare with full parallelism:
 
 ```bash
-copilot-agents fleet /tmp/calc-fleet/ -c 4
+npx copilot-agents fleet /tmp/calc-fleet/ -c 4
 ```
 
 **What to expect:**
@@ -147,12 +147,12 @@ copilot-agents fleet /tmp/calc-fleet/ -c 4
 ### Test 4: With Specific Model
 
 ```bash
-copilot-agents fleet /tmp/calc-fleet/ -m gpt-4o
+npx copilot-agents fleet /tmp/calc-fleet/ -m gpt-5.4
 ```
 
 **What to expect:**
 
-- All 4 tasks use the `gpt-4o` model
+- All 4 tasks use the `gpt-5.4` model
 - Verbose mode (`-v`) should confirm model selection per session
 - Output quality may differ from default model
 - Summary table should still show all tasks succeeded
@@ -162,7 +162,7 @@ copilot-agents fleet /tmp/calc-fleet/ -m gpt-4o
 ### Test 5: Aggressive Timeout (Trigger Failures)
 
 ```bash
-copilot-agents fleet /tmp/calc-fleet/ -t 3000
+npx copilot-agents fleet /tmp/calc-fleet/ -t 3000
 ```
 
 **What to expect:**
@@ -177,7 +177,7 @@ copilot-agents fleet /tmp/calc-fleet/ -t 3000
 Verify exit code:
 
 ```bash
-copilot-agents fleet /tmp/calc-fleet/ -t 3000; echo "Exit code: $?"
+npx copilot-agents fleet /tmp/calc-fleet/ -t 3000; echo "Exit code: $?"
 ```
 
 ---
@@ -185,7 +185,7 @@ copilot-agents fleet /tmp/calc-fleet/ -t 3000; echo "Exit code: $?"
 ### Test 6: Verbose Mode (See Everything)
 
 ```bash
-copilot-agents fleet /tmp/calc-fleet/ -v
+npx copilot-agents fleet /tmp/calc-fleet/ -v
 ```
 
 **What to expect:**
@@ -202,7 +202,7 @@ copilot-agents fleet /tmp/calc-fleet/ -v
 ### Test 7: Fleet RPC Mode
 
 ```bash
-copilot-agents fleet /tmp/calc-fleet/ --use-fleet-rpc
+npx copilot-agents fleet /tmp/calc-fleet/ --use-fleet-rpc
 ```
 
 **What to expect:**
@@ -218,7 +218,7 @@ copilot-agents fleet /tmp/calc-fleet/ --use-fleet-rpc
 ### Test 8: List Available Agents
 
 ```bash
-copilot-agents fleet --list-agents
+npx copilot-agents fleet --list-agents
 ```
 
 **What to expect:**
@@ -236,7 +236,7 @@ copilot-agents fleet --list-agents
 ### Test 9: Mixed Files and Directories
 
 ```bash
-copilot-agents fleet /tmp/calc-fleet/01-layout.md /tmp/calc-fleet/
+npx copilot-agents fleet /tmp/calc-fleet/01-layout.md /tmp/calc-fleet/
 ```
 
 **What to expect:**
@@ -264,7 +264,7 @@ ls /tmp/calc-fleet/*.md | wc -l
 Fleet exits `1` (`ExitCode.GeneralError`) if **any** task fails — this is an aggregate signal. To see which specific tasks failed, check the summary table printed at the end. Each row shows per-task status (`completed` or `failed`) and duration.
 
 ```bash
-copilot-agents fleet /tmp/calc-fleet/ -t 3000; echo "Exit code: $?"
+npx copilot-agents fleet /tmp/calc-fleet/ -t 3000; echo "Exit code: $?"
 # Exit code: 1 (even if only 1 of 4 tasks timed out)
 ```
 

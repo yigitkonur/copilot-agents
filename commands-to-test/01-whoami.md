@@ -18,7 +18,7 @@ This command is **read-only** — it never writes to disk, modifies config, or c
 ### Test 1: Basic Auth Check
 
 ```bash
-
+npx copilot-agents whoami
 ```
 
 **What to expect:**
@@ -55,13 +55,13 @@ Exit code will be `2` (AuthError).
 ### Test 2: Verbose Auth + Quota
 
 ```bash
-copilot-agents whoami --verbose
+npx copilot-agents whoami --verbose
 ```
 
 Or using the short flag:
 
 ```bash
-copilot-agents whoami -v
+npx copilot-agents whoami -v
 ```
 
 **What to expect:**
@@ -110,7 +110,7 @@ Server status:
 > ⚠️ **Warning**: This test temporarily unsets `GITHUB_TOKEN` for a single command. The `VAR= command` syntax is a POSIX shell feature that sets an environment variable **only for that one command** — your shell session's `GITHUB_TOKEN` is unaffected afterward. If you authenticate via `gh auth login` (OAuth) rather than `GITHUB_TOKEN`, this test may still succeed.
 
 ```bash
-GITHUB_TOKEN= copilot-agents whoami
+GITHUB_TOKEN= npx copilot-agents whoami
 ```
 
 **What to expect:**
@@ -122,7 +122,7 @@ GITHUB_TOKEN= copilot-agents whoami
 
 ```bash
 # Verify exit code:
-GITHUB_TOKEN= copilot-agents whoami; echo "Exit code: $?"
+GITHUB_TOKEN= npx copilot-agents whoami; echo "Exit code: $?"
 # Expected: Exit code: 2 (or 3 if connection fails before auth check)
 ```
 
@@ -152,6 +152,8 @@ This is not a test you need to run manually, but be aware this is the expected b
 | `2`  | `AuthError`      | Not authenticated or token expired/revoked    |
 | `3`  | `ConnectionError`| Cannot reach the Copilot server               |
 | `4`  | `TimeoutError`   | Operation timed out                           |
+| `5`  | `PromptError`    | Invalid or unreadable prompt                  |
+| `6`  | `SessionError`   | Session creation / lookup / resumption failed |
 
 ## Red Flags to Watch For
 

@@ -137,7 +137,7 @@ export type ExitCode = (typeof ExitCode)[keyof typeof ExitCode];
 export interface RunConfig {
   /** The user prompt to send. */
   readonly prompt: string;
-  /** Model identifier (e.g. `"gpt-4o"`). Falls back to server default. */
+  /** Model identifier (e.g. `"gpt-5.4"`). Falls back to server default. */
   readonly model?: string;
   /** Working directory for tool execution. */
   readonly cwd: string;

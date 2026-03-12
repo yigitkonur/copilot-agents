@@ -22,7 +22,7 @@ The `sessions` command provides full lifecycle management for saved Copilot CLI 
 ### Test 1: List All Sessions
 
 ```bash
-copilot-agents sessions list
+npx copilot-agents sessions list
 ```
 
 **What to expect:**
@@ -45,7 +45,7 @@ f9e8d7c6-b5a4-3210-fedc-ba9876543210   Fixed CSS layout issues                  
 ### Test 2: List Sessions (JSON)
 
 ```bash
-copilot-agents sessions list --json
+npx copilot-agents sessions list --json
 ```
 
 **What to expect:**
@@ -71,7 +71,7 @@ copilot-agents sessions list --json
 **Pro tip:** Pipe through `jq` to inspect individual sessions:
 
 ```bash
-copilot-agents sessions list --json | jq '.[0]'
+npx copilot-agents sessions list --json | jq '.[0]'
 ```
 
 ---
@@ -79,7 +79,7 @@ copilot-agents sessions list --json | jq '.[0]'
 ### Test 3: Filter Sessions by CWD
 
 ```bash
-copilot-agents sessions list --cwd $(pwd)
+npx copilot-agents sessions list --cwd $(pwd)
 ```
 
 **What to expect:**
@@ -93,7 +93,7 @@ copilot-agents sessions list --cwd $(pwd)
 ### Test 4: Filter Sessions by Repository
 
 ```bash
-copilot-agents sessions list --repo owner/repo-name
+npx copilot-agents sessions list --repo owner/repo-name
 ```
 
 **What to expect:**
@@ -106,7 +106,7 @@ copilot-agents sessions list --repo owner/repo-name
 ### Test 5: Get Last Session ID
 
 ```bash
-copilot-agents sessions last
+npx copilot-agents sessions last
 ```
 
 **What to expect:**
@@ -124,7 +124,7 @@ a1b2c3d4-e5f6-7890-abcd-ef1234567890
 **Pro tip:** Capture it for use in subsequent commands:
 
 ```bash
-SESSION_ID=$(copilot-agents sessions last)
+SESSION_ID=$(npx copilot-agents sessions last)
 
 # ⚠️ Always verify the variable before using it in subsequent commands.
 # If no session exists, SESSION_ID will contain "No previous session found"
@@ -143,9 +143,9 @@ fi
 ### Test 6: View Conversation History
 
 ```bash
-SESSION_ID=$(copilot-agents sessions last)
+SESSION_ID=$(npx copilot-agents sessions last)
 echo "Using session: $SESSION_ID"  # Verify before proceeding
-copilot-agents sessions history $SESSION_ID
+npx copilot-agents sessions history $SESSION_ID
 ```
 
 **What to expect:**
@@ -160,12 +160,10 @@ copilot-agents sessions history $SESSION_ID
 
 ```
 [user] Create a simple calculator in HTML
-
 [assistant] I'll create a calculator web application for you...
-
 [tool.call]
 
-12 event(s)
+ℹ 12 event(s)
 ```
 
 ---
@@ -173,9 +171,9 @@ copilot-agents sessions history $SESSION_ID
 ### Test 7: History as JSON
 
 ```bash
-SESSION_ID=$(copilot-agents sessions last)
+SESSION_ID=$(npx copilot-agents sessions last)
 echo "Using session: $SESSION_ID"  # Verify before proceeding
-copilot-agents sessions history $SESSION_ID --json
+npx copilot-agents sessions history $SESSION_ID --json
 ```
 
 **What to expect:**
@@ -206,7 +204,7 @@ copilot-agents sessions history $SESSION_ID --json
 **Pro tip:** Combine with `jq` to extract just assistant responses:
 
 ```bash
-copilot-agents sessions history $SESSION_ID --json | jq '[.[] | select(.type == "assistant.message") | .data.content]'
+npx copilot-agents sessions history $SESSION_ID --json | jq '[.[] | select(.type == "assistant.message") | .data.content]'
 ```
 
 > **Note:** You can also use `--format json` as an alternative to `--json`.
@@ -216,9 +214,9 @@ copilot-agents sessions history $SESSION_ID --json | jq '[.[] | select(.type == 
 ### Test 8: View Session Plan
 
 ```bash
-SESSION_ID=$(copilot-agents sessions last)
+SESSION_ID=$(npx copilot-agents sessions last)
 echo "Using session: $SESSION_ID"  # Verify before proceeding
-copilot-agents sessions plan $SESSION_ID
+npx copilot-agents sessions plan $SESSION_ID
 ```
 
 **What to expect:**
@@ -238,7 +236,7 @@ copilot-agents sessions plan $SESSION_ID
 **With JSON output:**
 
 ```bash
-copilot-agents sessions plan $SESSION_ID --json
+npx copilot-agents sessions plan $SESSION_ID --json
 ```
 
 ---
@@ -246,9 +244,9 @@ copilot-agents sessions plan $SESSION_ID --json
 ### Test 9: List Available Agents
 
 ```bash
-SESSION_ID=$(copilot-agents sessions last)
+SESSION_ID=$(npx copilot-agents sessions last)
 echo "Using session: $SESSION_ID"  # Verify before proceeding
-copilot-agents sessions agents $SESSION_ID
+npx copilot-agents sessions agents $SESSION_ID
 ```
 
 **What to expect:**
@@ -260,7 +258,7 @@ copilot-agents sessions agents $SESSION_ID
 **With JSON output:**
 
 ```bash
-copilot-agents sessions agents $SESSION_ID --json
+npx copilot-agents sessions agents $SESSION_ID --json
 ```
 
 ---
@@ -268,9 +266,9 @@ copilot-agents sessions agents $SESSION_ID --json
 ### Test 10: List Workspace Files
 
 ```bash
-SESSION_ID=$(copilot-agents sessions last)
+SESSION_ID=$(npx copilot-agents sessions last)
 echo "Using session: $SESSION_ID"  # Verify before proceeding
-copilot-agents sessions workspace list $SESSION_ID
+npx copilot-agents sessions workspace list $SESSION_ID
 ```
 
 **What to expect:**
@@ -289,7 +287,7 @@ styles.css
 **With JSON output:**
 
 ```bash
-copilot-agents sessions workspace list $SESSION_ID --json
+npx copilot-agents sessions workspace list $SESSION_ID --json
 ```
 
 ---
@@ -297,16 +295,16 @@ copilot-agents sessions workspace list $SESSION_ID --json
 ### Test 11: Read a Workspace File
 
 ```bash
-SESSION_ID=$(copilot-agents sessions last)
+SESSION_ID=$(npx copilot-agents sessions last)
 echo "Using session: $SESSION_ID"  # Verify before proceeding
 
 # First, list files to find a valid path
-copilot-agents sessions workspace list $SESSION_ID
+npx copilot-agents sessions workspace list $SESSION_ID
 
 # Then read one of the listed files
 # ⚠️ Replace "calculator.html" below with an actual path from the list output above.
 # This is a manual substitution — copy-paste the exact filename shown.
-copilot-agents sessions workspace read $SESSION_ID calculator.html
+npx copilot-agents sessions workspace read $SESSION_ID calculator.html
 ```
 
 **What to expect:**
@@ -325,8 +323,8 @@ copilot-agents sessions workspace read $SESSION_ID calculator.html
 
 ```bash
 # First, create a throwaway session to safely delete
-copilot-agents run -p "Say hello"
-THROWAWAY=$(copilot-agents sessions last)
+npx copilot-agents run -p "Say hello"
+THROWAWAY=$(npx copilot-agents sessions last)
 
 # ⚠️ Always verify the variable captured a valid session ID
 echo "Throwaway session: $THROWAWAY"
@@ -336,13 +334,13 @@ if [[ -z "$THROWAWAY" ]]; then
 fi
 
 # Verify it exists in the list
-copilot-agents sessions list | grep "$THROWAWAY"
+npx copilot-agents sessions list | grep "$THROWAWAY"
 
 # Delete it
-copilot-agents sessions delete "$THROWAWAY"
+npx copilot-agents sessions delete "$THROWAWAY"
 
 # Verify it's gone (grep should return no matches / exit code 1)
-copilot-agents sessions list | grep "$THROWAWAY"
+npx copilot-agents sessions list | grep "$THROWAWAY"
 ```
 
 **What to expect:**
@@ -358,7 +356,7 @@ copilot-agents sessions list | grep "$THROWAWAY"
 ### Test 13: Abort a Session
 
 ```bash
-copilot-agents sessions abort <SESSION_ID>
+npx copilot-agents sessions abort <SESSION_ID>
 ```
 
 **What to expect:**
@@ -376,7 +374,7 @@ copilot-agents sessions abort <SESSION_ID>
 ### Test 14: Error Handling — Non-Existent Session
 
 ```bash
-copilot-agents sessions delete nonexistent-session-id-12345
+npx copilot-agents sessions delete nonexistent-session-id-12345
 ```
 
 **What to expect:**
@@ -388,7 +386,7 @@ copilot-agents sessions delete nonexistent-session-id-12345
 **✅ Verify exit code:**
 
 ```bash
-copilot-agents sessions delete nonexistent-session-id-12345
+npx copilot-agents sessions delete nonexistent-session-id-12345
 echo "Exit code: $?"
 # Should print a non-zero value (e.g., 1)
 ```
@@ -396,7 +394,7 @@ echo "Exit code: $?"
 **Also test with `history`:**
 
 ```bash
-copilot-agents sessions history nonexistent-session-id-12345
+npx copilot-agents sessions history nonexistent-session-id-12345
 echo "Exit code: $?"
 # Should also produce a clean error and non-zero exit code
 ```
@@ -408,7 +406,7 @@ echo "Exit code: $?"
 ### Test 15: Filter by Branch
 
 ```bash
-copilot-agents sessions list --branch main
+npx copilot-agents sessions list --branch main
 ```
 
 **What to expect:**
@@ -424,11 +422,11 @@ After running through these tests, you may have leftover test sessions (e.g., th
 
 ```bash
 # List all sessions and identify any test artifacts
-copilot-agents sessions list
+npx copilot-agents sessions list
 
 # Delete any sessions you created solely for testing
 # ⚠️ Remember: delete is irreversible — double-check the session ID before running
-copilot-agents sessions delete <test-session-id>
+npx copilot-agents sessions delete <test-session-id>
 ```
 
 ---

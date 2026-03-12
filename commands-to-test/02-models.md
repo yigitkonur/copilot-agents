@@ -11,21 +11,20 @@ Lists all AI models available through your Copilot subscription. Shows each mode
 ### Test 1: List All Models
 
 ```bash
-copilot-agents models
+npx copilot-agents models
 ```
 
 **What to expect:**
-A formatted table with columns: **ID | Name | Vision | Reasoning | Context | Status | Billing**. You should see multiple models (GPT-4o, Claude Sonnet, Gemini, etc.) with their capabilities at a glance.
+A formatted table with columns: **ID | Name | Vision | Reasoning | Context | Status | Billing**. You should see multiple models (GPT-5.4, Claude Sonnet, Gemini, etc.) with their capabilities at a glance.
 
 **✅ Success looks like:**
 
 ```
-ID               Name             Vision  Reasoning  Context    Status   Billing
-─────────────────────────────────────────────────────────────────────────────────
-claude-sonnet-4  Claude Sonnet 4  ✓       ✓          781.3 KB   enabled  1x
-gpt-4o           GPT-4o           ✓       ✗          500.0 KB   enabled  1x
-gpt-4.1          GPT-4.1          ✓       ✗          4.0 MB     enabled  0.5x
-o4-mini          o4-mini          ✓       ✓          781.3 KB   enabled  0.33x
+ID                   Name               Vision  Reasoning  Context   Status   Billing
+───────────────────────────────────────────────────────────────────────────────────────
+gpt-5.4              GPT-5.4            ✓       ✓          1.0 MB    enabled  1x
+claude-sonnet-4.6    Claude Sonnet 4.6  ✓       ✓          781.3 KB  enabled  1x
+gpt-4.1              GPT-4.1            ✓       ✗          4.0 MB    enabled  0.5x
 ```
 
 > **Note:** The Context column displays a human-readable byte estimate (tokens × 4 bytes/token, via `formatBytes`), not raw token counts. Billing shows the raw multiplier (e.g. `1x`, `0.5x`) — no zero-padding. A `─` separator line appears between the header and data rows. Models with `policy.state === 'disabled'` get a `⚠ ` prefix on their Name (e.g. `⚠ GPT-3.5`).
@@ -35,7 +34,7 @@ After the table, the command prints a summary line via `logger.info` (e.g. `4 mo
 ### Test 2: JSON Output
 
 ```bash
-copilot-agents models --json
+npx copilot-agents models --json
 ```
 
 **What to expect:**
@@ -49,13 +48,13 @@ A valid JSON array of model objects. Each object contains `id`, `name`, `capabil
 
 > **⚠️ Pipe safety:** If `copilot-agents models --json` fails (e.g. auth/network error), it prints an error to stderr and exits non-zero, but the pipe may still send partial or empty output to `jq`, which will also error. To catch failures properly, use `set -o pipefail` in your shell or check the exit code separately:
 > ```bash
-> copilot-agents models --json > /tmp/models.json && jq '.[].id' /tmp/models.json
+> npx copilot-agents models --json > /tmp/models.json && jq '.[].id' /tmp/models.json
 > ```
 
 ### Test 3: Detailed View
 
 ```bash
-copilot-agents models --detailed
+npx copilot-agents models --detailed
 ```
 
 **What to expect:**
@@ -75,22 +74,22 @@ An expanded per-model block instead of a table. Each model begins with a header 
 ### Test 4: Filter by Capability
 
 ```bash
-copilot-agents models --filter reasoning
-copilot-agents models --filter vision
-copilot-agents models --filter gpt
+npx copilot-agents models --filter reasoning
+npx copilot-agents models --filter vision
+npx copilot-agents models --filter gpt
 ```
 
 **What to expect:**
-- `--filter reasoning` → only models where `capabilities.supports.reasoningEffort` is true (e.g., o4-mini, Claude Sonnet)
-- `--filter vision` → only models where `capabilities.supports.vision` is true (e.g., GPT-4o, Claude Sonnet)
-- `--filter gpt` → case-insensitive substring match on model `id` or `name`, returns all GPT-family models
+- `--filter reasoning` → only models where `capabilities.supports.reasoningEffort` is true (e.g., GPT-5.4, Claude Sonnet 4.6)
+- `--filter vision` → only models where `capabilities.supports.vision` is true (e.g., GPT-5.4, Claude Sonnet 4.6)
+- `--filter gpt` → case-insensitive substring match on model `id` or `name`, returns all GPT-family models (GPT-5.4, GPT-5.1, GPT-4.1, etc.)
 
 Each should return a smaller subset of the full table.
 
 ### Test 5: Filter with No Matches
 
 ```bash
-copilot-agents models --filter nonexistent-model-xyz
+npx copilot-agents models --filter nonexistent-model-xyz
 ```
 
 **What to expect:**

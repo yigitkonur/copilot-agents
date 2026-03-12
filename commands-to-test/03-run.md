@@ -13,7 +13,7 @@
 ### Test 1: Inline Prompt (Streaming)
 
 ```bash
-copilot-agents run -p "Create a basic HTML calculator with +, -, ×, ÷ buttons. Single file, no frameworks. Output only the HTML."
+npx copilot-agents run -p "Create a basic HTML calculator with +, -, ×, ÷ buttons. Single file, no frameworks. Output only the HTML."
 ```
 
 **What to expect:**
@@ -33,7 +33,7 @@ Tokens appear character-by-character (or in small chunks) as the model writes. Y
 ### Test 2: Inline Prompt (Blocking / No Stream)
 
 ```bash
-copilot-agents run --no-stream -p "Create a basic HTML calculator with +, -, ×, ÷ operations. Single file."
+npx copilot-agents run --no-stream -p "Create a basic HTML calculator with +, -, ×, ÷ operations. Single file."
 ```
 
 **What to expect:**
@@ -71,7 +71,7 @@ EOF
 Then run:
 
 ```bash
-copilot-agents run -f /tmp/calc-prompt.txt
+npx copilot-agents run -f /tmp/calc-prompt.txt
 ```
 
 **What to expect:**
@@ -87,7 +87,7 @@ copilot-agents run -f /tmp/calc-prompt.txt
 ### Test 4: Prompt from Stdin (Pipe)
 
 ```bash
-echo "Create a minimal HTML calculator" | copilot-agents run
+echo "Create a minimal HTML calculator" | npx copilot-agents run
 ```
 
 **What to expect:**
@@ -102,7 +102,7 @@ echo "Create a minimal HTML calculator" | copilot-agents run
 **Also try multi-line stdin:**
 
 ```bash
-cat /tmp/calc-prompt.txt | copilot-agents run
+cat /tmp/calc-prompt.txt | npx copilot-agents run
 ```
 
 This is equivalent to Test 3 but uses stdin instead of `--file`.
@@ -112,7 +112,7 @@ This is equivalent to Test 3 but uses stdin instead of `--file`.
 ### Test 5: Save Output to File
 
 ```bash
-copilot-agents run --no-stream -p "Create a basic HTML calculator. Output ONLY the HTML code, no explanations." > calculator.html
+npx copilot-agents run --no-stream -p "Create a basic HTML calculator. Output ONLY the HTML code, no explanations." > calculator.html
 ```
 
 > **⚠️ File overwrite warning:** The `>` redirect will **overwrite** `calculator.html` if it already exists in the current directory — without confirmation. Use `>>` to append instead, or check for the file first with `ls calculator.html 2>/dev/null`.
@@ -139,19 +139,19 @@ open calculator.html      # macOS: opens in default browser
 ### Test 6: Specific Model Selection
 
 ```bash
-copilot-agents run -m gpt-4o -p "Create a basic HTML calculator"
+npx copilot-agents run -m gpt-5.4 -p "Create a basic HTML calculator"
 ```
 
 **What to expect:**
 
-- The specified model (`gpt-4o`) is used for generation instead of the default
+- The specified model (`gpt-5.4`) is used for generation instead of the default
 - Output quality and speed may vary depending on the model
 - Exit code 0
 
 **Try with different models to compare:**
 
 ```bash
-copilot-agents run -m claude-sonnet-4 -p "Create a basic HTML calculator"
+npx copilot-agents run -m claude-sonnet-4.6 -p "Create a basic HTML calculator"
 ```
 
 ---
@@ -160,7 +160,7 @@ copilot-agents run -m claude-sonnet-4 -p "Create a basic HTML calculator"
 
 ```bash
 # First run — note the session ID from output
-copilot-agents run -p "Create an HTML calculator with basic operations" -v
+npx copilot-agents run -p "Create an HTML calculator with basic operations" -v
 ```
 
 Look for a session ID in the verbose output, then:
@@ -169,7 +169,7 @@ Look for a session ID in the verbose output, then:
 # Second run — add features to the same session context
 # ⚠️ Replace <SESSION_ID> below with the ACTUAL session ID from the first run's verbose output.
 # Example session ID format: a1b2c3d4-e5f6-7890-abcd-ef1234567890
-copilot-agents run --resume --session-id <SESSION_ID> -p "Now add a history panel that shows the last 10 calculations"
+npx copilot-agents run --resume --session-id <SESSION_ID> -p "Now add a history panel that shows the last 10 calculations"
 ```
 
 > **⚠️ Session ID is a required placeholder:** You MUST replace `<SESSION_ID>` with the real session ID printed during the first run (visible in `-v` verbose output). Copy-pasting the command literally will fail.
@@ -190,7 +190,7 @@ copilot-agents run --resume --session-id <SESSION_ID> -p "Now add a history pane
 > **💡 Recommended first test:** If you're unfamiliar with the `run` command, start here. Read-only mode is the safest way to explore — it prevents the agent from writing files, running shell commands, invoking MCP tools, or fetching URLs.
 
 ```bash
-copilot-agents run --read-only -p "Create an HTML calculator"
+npx copilot-agents run --read-only -p "Create an HTML calculator"
 ```
 
 **What to expect:**
@@ -208,7 +208,7 @@ copilot-agents run --read-only -p "Create an HTML calculator"
 > **⚠️ System message safety:** System messages directly control agent behavior. A crafted system message can instruct the agent to perform specific actions (write files, run commands) if `--read-only` is not enabled. Only use system messages you trust, and consider pairing with `--read-only` when experimenting.
 
 ```bash
-copilot-agents run --system-message "You are a senior frontend developer. Always use CSS Grid for layouts. Use only CSS custom properties for colors." -p "Create an HTML calculator"
+npx copilot-agents run --system-message "You are a senior frontend developer. Always use CSS Grid for layouts. Use only CSS custom properties for colors." -p "Create an HTML calculator"
 ```
 
 **What to expect:**
@@ -220,7 +220,7 @@ copilot-agents run --system-message "You are a senior frontend developer. Always
 **Try with replace mode:**
 
 ```bash
-copilot-agents run \
+npx copilot-agents run \
   --system-message "Output only raw HTML. No explanations, no markdown fences." \
   --system-message-mode replace \
   -p "Create an HTML calculator"
@@ -231,7 +231,7 @@ copilot-agents run \
 ### Test 10: Timeout Test
 
 ```bash
-copilot-agents run -t 5000 -p "Create a very complex scientific calculator with graphing capabilities, matrix operations, unit conversions, and a full equation parser with LaTeX rendering"
+npx copilot-agents run -t 5000 -p "Create a very complex scientific calculator with graphing capabilities, matrix operations, unit conversions, and a full equation parser with LaTeX rendering"
 ```
 
 **What to expect:**
@@ -246,7 +246,7 @@ copilot-agents run -t 5000 -p "Create a very complex scientific calculator with 
 **Compare with a generous timeout:**
 
 ```bash
-copilot-agents run -t 300000 -p "Create a basic HTML calculator"
+npx copilot-agents run -t 300000 -p "Create a basic HTML calculator"
 ```
 
 This gives 5 minutes — more than enough. Default timeout is 120000ms (2 minutes).
@@ -256,7 +256,7 @@ This gives 5 minutes — more than enough. Default timeout is 120000ms (2 minute
 ### Test 11: Verbose Mode
 
 ```bash
-copilot-agents run -v -p "Create a basic HTML calculator"
+npx copilot-agents run -v -p "Create a basic HTML calculator"
 ```
 
 **What to expect:**
@@ -292,7 +292,7 @@ EOF
 > **Note on `/tmp`:** Same as Test 3 — `/tmp` is cleared on reboot. This is fine for test artifacts.
 
 ```bash
-copilot-agents run --attach /tmp/calc-style.css -p "Create an HTML calculator using the attached CSS style file. Use the exact class names from the CSS."
+npx copilot-agents run --attach /tmp/calc-style.css -p "Create an HTML calculator using the attached CSS style file. Use the exact class names from the CSS."
 ```
 
 **What to expect:**
@@ -325,7 +325,7 @@ copilot-agents run --attach /tmp/calc-style.css -p "Create an HTML calculator us
 | 5 | **Stdin hangs when not piped** | TTY detected but no prompt provided — CLI should error, not hang. Must use `-p` or `-f` in interactive terminals |
 | 6 | **Exit code 1 on successful output** | Disconnect or cleanup error after response completed — check verbose output for lifecycle issues |
 | 7 | **Session not created with `--resume`** | Session ID invalid or expired — session IDs are not persistent across CLI restarts by default |
-| 8 | **Verbose output shows hook errors** | SDK hooks (onSessionOpen, beforeTool) throwing — indicates configuration or permission issues |
+| 8 | **Verbose output shows hook errors** | SDK hooks (onSessionStart, onPreToolUse) throwing — indicates configuration or permission issues |
 | 9 | **`--read-only` still writes files or runs shell** | Permission enforcement not working — `createReadOnlyPermissionHandler` should only approve `read` kind. Serious bug, report immediately |
 | 10 | **Attached file content not reflected in output** | `--attach` file not sent to model context — check file path exists and is readable |
 
