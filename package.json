@@ -1,6 +1,6 @@
 {
   "name": "copilot-agents",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Production-grade CLI for GitHub Copilot SDK agents — type-safe, parallelizable, race-condition free",
   "type": "module",
   "main": "./dist/index.js",
@@ -11,6 +11,14 @@
   "files": ["dist", "scripts", "!**/*.test.*"],
   "license": "MIT",
   "keywords": ["copilot", "github", "agents", "cli", "sdk", "ai", "llm"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yigitkonur/copilot-agents.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yigitkonur/copilot-agents/issues"
+  },
+  "homepage": "https://github.com/yigitkonur/copilot-agents#readme",
   "exports": {
     ".": {
       "import": "./dist/index.js",
