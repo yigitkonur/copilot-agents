@@ -1,0 +1,43 @@
+{
+  "name": "copilot-agents",
+  "version": "1.0.1",
+  "description": "Production-grade CLI for GitHub Copilot SDK agents — type-safe, parallelizable, race-condition free",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "copilot-agents": "./dist/index.js"
+  },
+  "files": ["dist", "scripts", "!**/*.test.*"],
+  "license": "MIT",
+  "keywords": ["copilot", "github", "agents", "cli", "sdk", "ai", "llm"],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "start": "node dist/index.js",
+    "postinstall": "node scripts/postinstall.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@github/copilot-sdk": "^0.1.8",
+    "commander": "^13.1.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^4.0.18"
+  }
+}
